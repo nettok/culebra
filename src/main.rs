@@ -1,6 +1,8 @@
 extern crate piston_window;
+extern crate rand;
 
 use piston_window::*;
+use std::collections::VecDeque;
 
 #[derive(Copy, Clone)]
 struct Pos {
@@ -35,6 +37,7 @@ impl Pos {
     }
 }
 
+#[derive(Copy, Clone)]
 enum Dir {
     Up, Down, Left, Right
 }
@@ -52,11 +55,21 @@ impl Dir {
 
 struct Snake {
     head:  Pos,
-    moves: Vec<Dir>,
+    moves: VecDeque<Dir>,
     color: types::Color,
 }
 
 impl Snake {
+    // movement
+
+    fn go(&mut self, dir: Dir) {
+        self.head = self.head.go(&dir);
+        self.moves.push_front(dir);
+        self.moves.pop_back();
+    }
+
+    // drawing
+
     fn draw<G>(&self, transform: math::Matrix2d, g: &mut G) where G: Graphics {
         for rect in self.to_body_rectangles() {
             rectangle(self.color, rect, transform, g);
@@ -88,22 +101,60 @@ impl Snake {
     }
 }
 
+struct MainScene {
+    snake: Snake
+}
+
+impl MainScene {
+    fn new() -> MainScene {
+        let mut moves = VecDeque::new();
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+
+        MainScene {
+            snake: Snake {
+                head: Pos { x: 20, y: 20 },
+                moves: moves,
+                color: [1.0, 0.0, 1.0, 1.0]
+            }
+        }
+    }
+
+    fn render<G>(&self, args: &RenderArgs, c: Context, g: &mut G) where G: Graphics {
+        clear([0.0; 4], g);
+        self.snake.draw(c.transform, g);
+    }
+
+    fn key_press(&mut self, key: Key) {
+        match key {
+            Key::Up => self.snake.go(Dir::Up),
+            Key::Down => self.snake.go(Dir::Down),
+            Key::Left => self.snake.go(Dir::Left),
+            Key::Right => self.snake.go(Dir::Right),
+            _ => ()
+        }
+    }
+}
+
 fn main() {
     let mut window: PistonWindow =
         WindowSettings::new("Culebra!", [1000, 1000])
             .exit_on_esc(true).build().unwrap();
 
-    let snake = Snake {
-        head: Pos { x: 20, y: 20 },
-        moves: vec![Dir::Up, Dir::Up, Dir::Left, Dir::Left, Dir::Left, Dir::Left],
-        color: [1.0, 0.0, 1.0, 1.0]
-    };
+    let mut main_scene = MainScene::new();
 
-    while let Some(e) = window.next() {
-        window.draw_2d(&e, |c, g| {
-            clear([0.0; 4], g);
+    let mut events = window.events();
 
-            snake.draw(c.transform, g);
-        });
+    while let Some(e) = events.next(&mut window) {
+        if let Some(ref args) = e.render_args() {
+            window.draw_2d(&e, |c, g| {
+                main_scene.render(args, c, g);
+            });
+        }
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+            main_scene.key_press(key);
+        }
     }
 }
