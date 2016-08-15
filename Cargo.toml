@@ -3,6 +3,14 @@ name = "culebra"
 version = "0.1.0"
 authors = ["Ernesto Menéndez <pyalec@gmail.com>"]
 
+[[bin]]
+name = "culebra-client"
+path = "src/client.rs"
+
+[[bin]]
+name = "culebra-server"
+path = "src/server.rs"
+
 [dependencies]
 piston = "0.24.0"
 piston_window = "0.51.1"
