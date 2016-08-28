@@ -1,5 +1,8 @@
 extern crate piston_window;
 
+use std::io;
+use std::net::UdpSocket;
+
 use piston_window::*;
 
 mod game;
@@ -46,7 +49,11 @@ impl GameState {
 
 fn main() {
     // Start communication with game server
-    // TODO
+
+    let mut socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+    socket.set_nonblocking(true).unwrap();
+    socket.connect("127.0.0.1:7777").unwrap();
+    socket.send("hola".as_bytes()).unwrap();
 
     // Graphics loop
 
@@ -64,8 +71,34 @@ fn main() {
                 gs.render(args, c, g);
             });
         }
+
+        if let Some(u) = e.update_args() {
+            if let Some(new_game_state) = receive_game_state_from_server(&socket) {
+                gs = new_game_state;
+            }
+        }
+
         if let Some(Button::Keyboard(key)) = e.press_args() {
             gs.key_press(key);
+        }
+    }
+}
+
+fn receive_game_state_from_server(socket: &UdpSocket) -> Option<GameState> {
+    let mut recv_buf: [u8; 4096] = [0; 4096];
+
+    match socket.recv(&mut recv_buf) {
+        Ok(bytes_read) => {
+            println!("received {:?} bytes", bytes_read);
+            Some(GameState::new()) // TODO: deserialize message to GameState
+        }
+        Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+            // expected: client has not received a new message from the server
+            None
+        }
+        Err(ref e) => {
+            println!("error: kind={:?} {}", e.kind(), e);
+            None
         }
     }
 }
