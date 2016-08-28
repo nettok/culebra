@@ -1,3 +1,4 @@
+extern crate tokio_core;
 extern crate piston_window;
 
 use piston_window::*;
@@ -24,40 +25,48 @@ impl Snake {
     }
 }
 
-impl Game {
+impl GameState {
     fn render<G>(&self, args: &RenderArgs, c: Context, g: &mut G) where G: Graphics {
         clear([0.0; 4], g);
-        self.snake.draw(c.transform, g);
+
+        for snake in &self.snakes {
+            snake.draw(c.transform, g);
+        }
     }
 
     fn key_press(&mut self, key: Key) {
         match key {
-            Key::Up => self.snake.go(Dir::Up),
-            Key::Down => self.snake.go(Dir::Down),
-            Key::Left => self.snake.go(Dir::Left),
-            Key::Right => self.snake.go(Dir::Right),
+            Key::Up => self.snakes[0].go(Dir::Up),
+            Key::Down => self.snakes[0].go(Dir::Down),
+            Key::Left => self.snakes[0].go(Dir::Left),
+            Key::Right => self.snakes[0].go(Dir::Right),
             _ => ()
         }
     }
 }
 
 fn main() {
+    // Start communication with game server
+    // TODO
+
+    // Graphics loop
+
     let mut window: PistonWindow =
         WindowSettings::new("Culebra!", [1000, 1000])
             .exit_on_esc(true).build().unwrap();
 
-    let mut game = Game::new();
+    let mut gs = GameState::new();
 
     let mut events = window.events();
 
     while let Some(e) = events.next(&mut window) {
         if let Some(ref args) = e.render_args() {
             window.draw_2d(&e, |c, g| {
-                game.render(args, c, g);
+                gs.render(args, c, g);
             });
         }
         if let Some(Button::Keyboard(key)) = e.press_args() {
-            game.key_press(key);
+            gs.key_press(key);
         }
     }
 }

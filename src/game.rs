@@ -7,28 +7,12 @@ pub struct Pos {
 }
 
 impl Pos {
-    pub fn up(&self) -> Pos {
-        Pos { x: self.x, y: self.y - 1}
-    }
-
-    pub fn down(&self) -> Pos {
-        Pos { x: self.x, y: self.y + 1}
-    }
-
-    pub fn left(&self) -> Pos {
-        Pos { x: self.x - 1, y: self.y }
-    }
-
-    pub fn right(&self) -> Pos {
-        Pos { x: self.x + 1, y: self.y }
-    }
-
     pub fn go(&self, dir: &Dir) -> Pos {
         match dir {
-            &Dir::Up    => self.up(),
-            &Dir::Down  => self.down(),
-            &Dir::Left  => self.left(),
-            &Dir::Right => self.right()
+            &Dir::Up    => Pos { x: self.x, y: self.y - 1},
+            &Dir::Down  => Pos { x: self.x, y: self.y + 1},
+            &Dir::Left  => Pos { x: self.x - 1, y: self.y },
+            &Dir::Right => Pos { x: self.x + 1, y: self.y }
         }
     }
 }
@@ -76,24 +60,28 @@ impl Snake {
     }
 }
 
-pub struct Game {
-    pub snake: Snake
+pub struct GameState {
+    pub snakes: Vec<Snake>
 }
 
-impl Game {
-    pub fn new() -> Game {
+impl GameState {
+    pub fn new() -> GameState {
         let mut moves = VecDeque::new();
         moves.push_front(Dir::Left);
         moves.push_front(Dir::Left);
         moves.push_front(Dir::Left);
         moves.push_front(Dir::Left);
 
-        Game {
-            snake: Snake {
-                head: Pos { x: 20, y: 20 },
-                moves: moves,
-                color: [1.0, 0.0, 1.0, 1.0]
-            }
+        let snakes = vec![
+                            Snake {
+                                head: Pos { x: 20, y: 20 },
+                                moves: moves,
+                                color: [1.0, 0.0, 1.0, 1.0]
+                            }
+                         ];
+
+        GameState {
+            snakes: snakes
         }
     }
 }

@@ -15,5 +15,4 @@ path = "src/server.rs"
 piston = "0.24.0"
 piston_window = "0.51.1"
 rand = "0.3.14"
-tokio = { path = "../tokio" }
-mio = { git = "https://github.com/carllerche/mio", branch = "dev" }
+tokio-core = { git = "https://github.com/tokio-rs/tokio-core" }
