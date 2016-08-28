@@ -12,7 +12,5 @@ name = "culebra-server"
 path = "src/server.rs"
 
 [dependencies]
-piston = "0.24.0"
-piston_window = "0.51.1"
-rand = "0.3.14"
-tokio-core = { git = "https://github.com/tokio-rs/tokio-core" }
+piston = "0.25.0"
+piston_window = "0.52.0"
