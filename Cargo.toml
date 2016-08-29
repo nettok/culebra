@@ -14,3 +14,4 @@ path = "src/server.rs"
 [dependencies]
 piston = "0.25.0"
 piston_window = "0.52.0"
+rustc-serialize = "0.3.19"

@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, RustcDecodable)]
 pub struct Pos {
     pub x: u8,
     pub y: u8
@@ -17,7 +17,7 @@ impl Pos {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, RustcDecodable)]
 pub enum Dir {
     Up, Down, Left, Right
 }
@@ -33,6 +33,7 @@ impl Dir {
     }
 }
 
+#[derive(RustcDecodable)]
 pub struct Snake {
     pub head:  Pos,
     pub moves: VecDeque<Dir>,
@@ -60,6 +61,7 @@ impl Snake {
     }
 }
 
+#[derive(RustcDecodable)]
 pub struct GameState {
     pub snakes: Vec<Snake>
 }

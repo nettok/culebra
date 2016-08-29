@@ -1,7 +1,10 @@
 extern crate piston_window;
+extern crate rustc_serialize;
 
+use rustc_serialize::json;
 use std::io;
 use std::net::UdpSocket;
+use std::str;
 
 use piston_window::*;
 
@@ -89,8 +92,15 @@ fn receive_game_state_from_server(socket: &UdpSocket) -> Option<GameState> {
 
     match socket.recv(&mut recv_buf) {
         Ok(bytes_read) => {
-            println!("received {:?} bytes", bytes_read);
-            Some(GameState::new()) // TODO: deserialize message to GameState
+            let msg = str::from_utf8(&recv_buf[0 .. bytes_read]).unwrap();
+            //println!("received {:?} bytes: {}", bytes_read, msg);
+
+            if msg.starts_with('{') {
+                let gs: GameState = json::decode(&msg).unwrap();
+                Some(gs)
+            } else {
+                None
+            }
         }
         Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
             // expected: client has not received a new message from the server
