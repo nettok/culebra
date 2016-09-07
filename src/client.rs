@@ -38,16 +38,6 @@ impl GameState {
             snake.draw(c.transform, g);
         }
     }
-
-    fn key_press(&mut self, key: Key) {
-        match key {
-            Key::Up => self.snakes[0].go(Dir::Up),
-            Key::Down => self.snakes[0].go(Dir::Down),
-            Key::Left => self.snakes[0].go(Dir::Left),
-            Key::Right => self.snakes[0].go(Dir::Right),
-            _ => ()
-        }
-    }
 }
 
 fn main() {
@@ -56,7 +46,7 @@ fn main() {
     let mut socket = UdpSocket::bind("127.0.0.1:0").unwrap();
     socket.set_nonblocking(true).unwrap();
     socket.connect("127.0.0.1:7777").unwrap();
-    socket.send("hola".as_bytes()).unwrap();
+    socket.send("start".as_bytes()).unwrap();
 
     // Graphics loop
 
@@ -67,6 +57,8 @@ fn main() {
     let mut gs = GameState::new();
 
     let mut events = window.events();
+
+    let mut oneSecondPingTimer = 0.0;
 
     while let Some(e) = events.next(&mut window) {
         if let Some(ref args) = e.render_args() {
@@ -79,10 +71,25 @@ fn main() {
             if let Some(new_game_state) = receive_game_state_from_server(&socket) {
                 gs = new_game_state;
             }
+
+            oneSecondPingTimer += u.dt;
+            if oneSecondPingTimer >= 1.0 {
+                //println!("{:?}", oneSecondPingTimer);
+                socket.send("ping".as_bytes()).unwrap();
+                oneSecondPingTimer = 0.0;
+            }
         }
 
         if let Some(Button::Keyboard(key)) = e.press_args() {
-            gs.key_press(key);
+            if let Some(dir) = match key {
+                Key::Up => Some("Up"),
+                Key::Down => Some("Down"),
+                Key::Left => Some("Left"),
+                Key::Right => Some("Right"),
+                _ => None
+            } {
+                socket.send(dir.as_bytes()).unwrap();
+            }
         }
     }
 }

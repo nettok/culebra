@@ -57,6 +57,7 @@ impl Snake {
             body_positions.push(curr_pos);
         }
 
+        //println("{:?}", body_positions.size());
         body_positions
     }
 }
@@ -69,10 +70,10 @@ pub struct GameState {
 impl GameState {
     pub fn new() -> GameState {
         let mut moves = VecDeque::new();
-        moves.push_front(Dir::Left);
-        moves.push_front(Dir::Left);
-        moves.push_front(Dir::Left);
-        moves.push_front(Dir::Left);
+//        moves.push_front(Dir::Left);
+//        moves.push_front(Dir::Left);
+//        moves.push_front(Dir::Left);
+//        moves.push_front(Dir::Left);
 
         let snakes = vec![
                             Snake {
