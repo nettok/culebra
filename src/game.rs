@@ -48,16 +48,15 @@ impl Snake {
     }
 
     pub fn to_body_positions(&self) -> Vec<Pos> {
-        let mut body_positions = vec![self.head];
+        let mut body_positions = vec![];
 
         let mut curr_pos = self.head;
 
         for mov in &self.moves {
-            curr_pos = curr_pos.go(&mov.inverse());
             body_positions.push(curr_pos);
+            curr_pos = curr_pos.go(&mov.inverse());
         }
 
-        //println("{:?}", body_positions.size());
         body_positions
     }
 }
@@ -70,17 +69,17 @@ pub struct GameState {
 impl GameState {
     pub fn new() -> GameState {
         let mut moves = VecDeque::new();
-//        moves.push_front(Dir::Left);
-//        moves.push_front(Dir::Left);
-//        moves.push_front(Dir::Left);
-//        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
+        moves.push_front(Dir::Left);
 
         let snakes = vec![
-                            Snake {
-                                head: Pos { x: 20, y: 20 },
-                                moves: moves,
-                                color: [1.0, 0.0, 1.0, 1.0]
-                            }
+//                            Snake {
+//                                head: Pos { x: 20, y: 20 },
+//                                moves: moves,
+//                                color: [1.0, 0.0, 1.0, 1.0]
+//                            }
                          ];
 
         GameState {
