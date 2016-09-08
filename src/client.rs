@@ -2,6 +2,7 @@ extern crate piston_window;
 extern crate rustc_serialize;
 
 use rustc_serialize::json;
+use std::env;
 use std::io;
 use std::net::UdpSocket;
 use std::str;
@@ -41,11 +42,25 @@ impl GameState {
 }
 
 fn main() {
+    // Read server IP address from command line
+
+    let mut ip_addr: String = "127.0.0.1".to_string();
+    let mut args = env::args();
+
+    if args.len() >= 2 {
+        args.next();
+        if let Some(ip) = args.next() {
+            ip_addr = String::from(ip);
+        }
+    }
+
+    //println!("{}", ip_addr);
+
     // Start communication with game server
 
-    let mut socket = UdpSocket::bind("127.0.0.1:0").unwrap();
+    let mut socket = UdpSocket::bind((ip_addr.clone() + ":0").as_str()).unwrap();
     socket.set_nonblocking(true).unwrap();
-    socket.connect("127.0.0.1:7777").unwrap();
+    socket.connect((ip_addr + ":7777").as_str()).unwrap();
     socket.send("start".as_bytes()).unwrap();
 
     // Graphics loop
@@ -61,12 +76,14 @@ fn main() {
     let mut oneSecondPingTimer = 0.0;
 
     while let Some(e) = events.next(&mut window) {
+        // Render game state to screen
         if let Some(ref args) = e.render_args() {
             window.draw_2d(&e, |c, g| {
                 gs.render(args, c, g);
             });
         }
 
+        // Update state (when the gamestate comes from the server)
         if let Some(u) = e.update_args() {
             if let Some(new_game_state) = receive_game_state_from_server(&socket) {
                 gs = new_game_state;
@@ -80,6 +97,7 @@ fn main() {
             }
         }
 
+        // Listen to keystrokes and send movement intention to server
         if let Some(Button::Keyboard(key)) = e.press_args() {
             if let Some(dir) = match key {
                 Key::Up => Some("Up"),
